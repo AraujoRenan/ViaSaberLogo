@@ -1,120 +1,110 @@
-# watermark.js [![Build Status](https://travis-ci.org/brianium/watermarkjs.svg?branch=master)](https://travis-ci.org/brianium/watermarkjs)
 
-A functional library for watermarking images in the browser. Written with ES6, and made available
-to current browsers via [Babel](https://babeljs.io/). Supports urls, file inputs, blobs, and on-page images.
+<!doctype html>
+<html lang="en">
 
-**Note:**
-For anyone that is interested: I ported this to a ClojureScript library called
-[Dandy Roll](https://github.com/brianium/dandy-roll).
+<head>
+  <meta charset="utf-8">
+  <title>watermark.js - watermarks in the browser</title>
+  <script src="scripts/polyfill.js"></script>
+  <script src="scripts/watermark.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.5/highlight.min.js"></script>
+  <link href='http://fonts.googleapis.com/css?family=Josefin+Slab|Maven+Pro' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="css/bootstrap.min.css" />
+  <link rel="stylesheet" href="css/bootstrap-theme.min.css" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.5/styles/default.min.css">
+</head>
 
-## Tested Browsers
+<body>
+  <a class="hidden-sm hidden-xs" href="https://github.com/brianium/watermarkjs"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/38ef81f8aca64bb9a64448d0d70f1308ef5341ab/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6461726b626c75655f3132313632312e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png"></a>
+  <div class="container">
 
-Any browser supporting [File](https://developer.mozilla.org/en-US/docs/Web/API/File#Browser_compatibility) and [FileReader](https://developer.mozilla.org/en-US/docs/Web/API/FileReader#Browser_compatibility) should work. The following browsers have been
-tested and work:
+    <h1 class="text-center"><a href="/watermarkjs/">watermark.js</a></h1>
+    <nav>
+      <ul>
+        <li><a href="images.html">images</a></li>
+        <li class="separator">-</li>
+        <li><a href="text.html">text</a></li>
+        <li class="separator">-</li>
+        <li><a href="uploading.html">uploading</a></li>
+        <li class="separator">-</li>
+        <li><a href="pooling.html">pooling</a></li>
+        <li class="separator">-</li>
+        <li><a href="docs.html">documentation</a></li>
+      </ul>
+    </nav>
 
-* IE10 (Windows 7)
-* Chrome 42 (OS X 10.10.3)
-* Firefox 38 (OS X 10.10.3)
-* Safari 8.0.6 (OS X 10.10.3)
-* Opera 29.0 (OS X 10.10.3)
+    <div class="col-xs-12">
 
-Please feel free to update this list or submit a fix for a particular browser via a pull request.
+      <div class="example" id="composite-image">
+        <h2>Composite Images</h2>
+        <pre>
+          <code class="javascript">
+watermark(['/img/shepherd.jpg', '/img/logo.png'])
+  .image(watermark.image.lowerRight())
+  .then(function (img) {
+    document.getElementById('composite-image').appendChild(img);
+  });
+          </code>
+        </pre>
+      </div>
 
-## Installing
-
-watermark.js is available via npm and bower:
-
-```
-# install via npm
-$ npm install watermarkjs
-
-# install via bower
-$ bower install watermarkjs
-```
-
-## Usage
-
-```js
-// watermark by local path
-watermark(['img/photo.jpg', 'img/logo.png'])
+      <div class="example" id="alpha-image">
+        <h2>Alpha Transparency</h2>
+        <pre>
+          <code class="javascript">
+watermark(['/img/forest.jpg', '/img/logo.png'])
   .image(watermark.image.lowerRight(0.5))
-  .then(img => document.getElementById('container').appendChild(img));
+  .then(function (img) {
+    document.getElementById('alpha-image').appendChild(img);
+  });
+          </code>
+        </pre>
+      </div>
 
-// load a url and file object
-const upload = document.querySelector('input[type=file]').files[0];
-watermark([upload, 'img/logo.png'])
-  .image(watermark.image.lowerLeft(0.5))
-  .then(img => document.getElementById('container').appendChild(img));
+      <div class="example" id="text">
+        <h2>Text</h2>
+        <pre>
+          <code class="javascript">
+watermark(['/img/field.jpg'])
+  .image(watermark.text.lowerRight('MyPhoto', '28px serif', '#fff', 0.5))
+  .then(function (img) {
+    document.getElementById('text').appendChild(img);
+  });
+          </code>
+        </pre>
+      </div>
 
-// watermark from remote source
-const options = {
-  init(img) {
-    img.crossOrigin = 'anonymous'
-  }
-};
-watermark(['http://host.com/photo.jpg', 'http://host.com/logo.png'], options)
-  .image(watermark.image.lowerRight(0.5))
-  .then(img => document.getElementById('container').appendChild(img));
-```
+    </div>
+  </div>
 
-## Building
+  <script>
+    // simple composite image
+    watermark(['img/shepherd.jpg', 'img/logo.png'])
+      .image(watermark.image.lowerRight())
+      .then(function (img) {
+        var pre = document.querySelector('#composite-image pre');
+        pre.parentNode.insertBefore(img, pre);
+      });
 
-Before building or testing, install all the deps:
+    // a composite image with transparent watermark
+    watermark(['img/forest.jpg', 'img/logo.png'])
+      .image(watermark.image.lowerRight(0.5))
+      .then(function (img) {
+        var pre = document.querySelector('#alpha-image pre');
+        pre.parentNode.insertBefore(img, pre);
+      });
 
-```
-npm i
-```
+    // simple text watermark
+    watermark(['img/field.jpg'])
+      .image(watermark.text.lowerRight('MyPhoto', '28px serif', '#fff', 0.5))
+      .then(function (img) {
+        var pre = document.querySelector('#text pre');
+        pre.parentNode.insertBefore(img, pre);
+      });
+  </script>
 
-There is an npm script you can run to build:
+  <script>hljs.initHighlightingOnLoad();</script>
+</body>
 
-```
-npm run build
-```
-
-Or to kick off the file watcher and build as you make changes, run the start task:
-
-```
-$ npm start
-```
-
-## Testing
-
-There is an npm script for that too!:
-
-```
-$ npm test
-```
-
-This library uses the [Jest](https://facebook.github.io/jest/) testing framework. Due to some current
-issues with Jest, Node 0.10.x is required to run the tests.
-
-## Examples
-
-You can view examples and documentation by running the `sync` task via npm:
-
-```
-$ npm run sync
-```
-The examples demonstrate using watermark images and text, as well as a demonstration
-of uploading a watermarked image to Amazon S3. It is the same content hosted at
-[http://brianium.github.io/watermarkjs/](http://brianium.github.io/watermarkjs/).
-
-## Development
-
-Running `npm run dev` will start a browser and start watching source files for changes.
-
-## Motivation
-
-* Not every server has image libraries (shared hosting anyone?)
-* Not every server has reliable concurrency libs for efficient uploading (shared hosting anyone?)
-* JavaScript is fun and cool - more so with ES6
-
-Clearly watermarking on the client has some limitations when watermarking urls and on-page elements. The curious can find urls for non-watermarked images, but it is likely that most average users won't go down this path - keeping this soft barrier useful. However!...
-
-watermark.js has the ability to accept file inputs as a source for watermarking. This makes it easy to preview, watermark, and upload without the non-watermarked image ever becoming public. Check out the [uploading](http://brianium.github.io/watermarkjs/uploading.html) demo to see this in action.
-
-This tool certainly shines in admin or CMS environments where you want to generate watermarks and upload them asynchronously where it would not be possible or preferable on the server. One less thing the server has to do can be a good thing :)
-
-## Suggestions? Improvements?
-
-Please open issues or pull requests if you have bugs/improvements.
+</html>
